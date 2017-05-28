@@ -54,4 +54,4 @@ The Ethereum looks more profitable now and have no maintenance fee, but ETH cont
 
 Anyway, this is just my small research and not an investing recommendation. Who knows what the price will be in one year?
 
-###The source code on Python is available in [github]()
+###The source code on Python is available in [github](https://github.com/fooblic/mining-calc)
