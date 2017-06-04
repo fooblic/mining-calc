@@ -1,4 +1,6 @@
 *~
 *.html
 *.sh
-
+*.yml
+*.log
+*.txt
