@@ -11,7 +11,7 @@ LTC: 0.0107494 BTC
 ETH: 0.0764511 BTC
 ```
 
-Cloud mining proposal consists of the mining cost and maintenance fee for offered hash rate power. I've took the mining price list from hashflare.io and the rewards per offered rate from online calculator:   
+Cloud mining proposal consists of the mining cost and maintenance fee for offered hash rate power. I've took the mining price list from hashflare.io and the rewards per offered rate from online calculators:
 
 ```
 # Bitcoin
@@ -36,7 +36,7 @@ ETH = { # https://etherscan.io/ether-mining-calculator
 }
 ```
 
-Below is shown calculation graph examples for 100 USD investment for each of considerate currency. The "outcome" line presets our expenses growth per day from 100 USD initial payment for hash rate power. Our revenue presented by "income" line. The "profit" line is the difference between "income" and "outcome". Since the cost for mined coins are higher than maintenance fee, the income is increasing faster that outcome. When income line cross outcome line, the profit changed to positive - it is a point of investment return.
+Below is shown calculation graph examples for 100 USD investment for each of considerate currency. The "outcome" line presents our expenses growth per day from 100 USD initial payment for hash rate power. Our revenue presented by "income" line. The "profit" line is the difference between "income" and "outcome". Since the cost for mined coins are higher than maintenance fee, the income is increasing faster that outcome. When income line cross outcome line, the profit changed to positive - it is a point of investment return.
 
 ![BTC](./img/BTC.png)
 
@@ -53,5 +53,3 @@ The investments in ETH (ETHASH) mining will return in 149 days. Annual profit is
 The Ethereum looks more profitable now and have no maintenance fee, but ETH contract is limited to only 1 year. The BTC and LTC contracts are unlimited and will continue to generate profit. Keep in mind that network mining complexity is constantly increasing and hash rate power you've bought will not cover maintenance fee in future. In that case only coins exchange rate growth could compensate your investment.
 
 Anyway, this is just my small research and not an investing recommendation. Who knows what the price will be in one year?
-
-###The source code on Python is available in [github](https://github.com/fooblic/mining-calc)
