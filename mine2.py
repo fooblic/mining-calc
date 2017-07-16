@@ -14,6 +14,7 @@ import yaml
 import pandas as pd
 
 TODAY = time.strftime("%y%m%d")
+TD = time.strftime("%b %d, %Y")
 
 CFG = yaml.load(open("investing.yml.example"))
 
@@ -132,7 +133,7 @@ for cur in CURRENCY:
                 table.loc[num]["percent"] = profit[day] / investing * 100
 
         py.figure(num)
-        py.title(cur + "_" + mine + " -> " + pro + "% per year")
+        py.title("%s (%s) -> %s%% (%s)"  %  (cur, mine, pro, TD))
         py.xlabel("days")
         py.plot(out, label="outcome")
         py.plot(inc, label="income")
