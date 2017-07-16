@@ -15,24 +15,19 @@ import pandas as pd
 
 TODAY = time.strftime("%y%m%d")
 
-CFG = yaml.load(open("investing.yml"))
+CFG = yaml.load(open("investing.yml.example"))
 
 CURRENCY = CFG["Coins"].keys()  #["BTC", "LTC", "ETH", "DASH", "ZEC"]
 MINING = CFG["Mining"].keys()  #["HF", "GM"]
 qty = len(CURRENCY) * len(MINING)
 
 URL_BASE = "https://api.coinmarketcap.com/v1/ticker/"
-records = {"BTC": 
-               {"API": URL_BASE + "bitcoin"},
-            "LTC": 
-                {"API": URL_BASE + "litecoin"},
-            "ETH": 
-                {"API": URL_BASE + "ethereum"},
-            "DASH": 
-                {"API": URL_BASE + "dash"},
-            "ZEC": 
-                {"API": URL_BASE + "zcash"}
-}
+records = {"BTC": {"API": URL_BASE + "bitcoin"},
+           "LTC": {"API": URL_BASE + "litecoin"},
+           "ETH": {"API": URL_BASE + "ethereum"},
+           "DASH":{"API": URL_BASE + "dash"},
+           "ZEC": {"API": URL_BASE + "zcash"}
+          }
 
 print("Getting ex-rates...\n")
 # BTC/USD rate
@@ -52,14 +47,18 @@ for cur in CURRENCY:
     for mine in MINING:
         records[cur].update(mine={})
         miner = {
-             "MINE" : CFG["Mining"][mine][cur]["mine"],
-             "MAINT" : CFG["Mining"][mine][cur]["maint"]
+            "MINE": CFG["Mining"][mine][cur]["mine"],
+            "MAINT": CFG["Mining"][mine][cur]["maint"]
         }
         records[cur][mine] = miner
 
 reporting = "BTC_USD: %s USD\n" % BTC_USD
 for cur in CURRENCY:
-    reporting += "%s: %s BTC\n" % (cur, records[cur]["price"])
+    reporting += "%s: %s BTC\t(%s coins per day)\n" % (cur,
+                                                       records[cur]["price"],
+                                                       CFG["Coins"][cur])
+
+print(reporting)
 
 TEMPL = '''
 investing: %s USD for %s days
@@ -83,9 +82,9 @@ except:
 
 num = 0
 DAYS = 365 * 1
-col = ["currency", "mining", "invest", "revenue", "maintance", "profit",
-               "return", "percent"]
-table = pd.DataFrame([], columns=col, index=range(qty))
+COL = ["currency", "mining", "invest", "revenue", "maintenance", "profit",
+       "return", "percent"]
+table = pd.DataFrame([], columns=COL, index=range(qty))
 
 for cur in CURRENCY:
     for mine in MINING:
@@ -105,7 +104,7 @@ for cur in CURRENCY:
         inc = []
         out = []
 
-        reporting += "\n %s %s" % (cur, mine) 
+        reporting += "\n %s %s" % (cur, mine)
         for day in range(DAYS):
             out.append(outcome(day, fee, investing))
             inc.append(income(day, CFG["Coins"][cur], records[cur]["price"], units))
@@ -124,11 +123,11 @@ for cur in CURRENCY:
                                 out[day] - investing,
                                 profit[day],
                                 profit[day] / investing * 100
-                                )
+                               )
                 #print(calc)
                 reporting += calc
                 table.loc[num]["revenue"] = inc[day]
-                table.loc[num]["maintance"] = out[day] - investing
+                table.loc[num]["maintenance"] = out[day] - investing
                 table.loc[num]["profit"] = profit[day]
                 table.loc[num]["percent"] = profit[day] / investing * 100
 
@@ -143,8 +142,11 @@ for cur in CURRENCY:
         py.savefig("./img" + TODAY +"/" + cur + "_" + mine + ".png")
         num += 1
 
-with open("report" + TODAY + ".txt", "w") as FILE:
+table.sort_values(by="percent", inplace=True)
+table.to_csv("report %s.csv" % TODAY, sep="\t", index=False)
+
+with open("report" + TODAY + ".log", "w") as FILE:
     FILE.write(reporting)
 
 #print(reporting)
-print(table.sort(["percent"]))
+print(table)

@@ -12,12 +12,12 @@ Investing:  # USD
 # http://www.coinwarz.com/calculators/dash-mining-calculator/
 # https://www.coinwarz.com/calculators/zcash-mining-calculator/
 
-Coins:  # 2017-07-13
-    BTC: 0.00000355   # coins per day for 10GH/s
-    LTC: 0.00182703   # per 1 MH/s
-    ETH: 0.000034865  # per 100 KH/s
-    DASH: 0.00007764  # per 1 MH/s
-    ZEC: 0.00000267   # per 0.1 H/s
+Coins:  # 2017-07-16
+    BTC: 0.00000313   # coins per day for 10GH/s
+    LTC: 0.00180030   # per 1 MH/s
+    ETH: 0.000034775  # per 100 KH/s
+    DASH: 0.00010240  # per 1 MH/s
+    ZEC: 0.00000297   # per 0.1 H/s
 
 Mining:
     HF:  # https://hashflare.io/#plans
