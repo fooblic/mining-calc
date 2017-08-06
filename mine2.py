@@ -16,7 +16,7 @@ import pandas as pd
 TODAY = time.strftime("%y%m%d")
 TD = time.strftime("%b %d, %Y")
 
-CFG = yaml.load(open("investing.yml.example"))
+CFG = yaml.load(open("investing.yml"))
 
 CURRENCY = CFG["Coins"].keys()  #["BTC", "LTC", "ETH", "DASH", "ZEC"]
 MINING = CFG["Mining"].keys()  #["HF", "GM"]
@@ -76,10 +76,11 @@ def income(ddays, coins, exrate, unit):
     ''' Revenue '''
     return BTC_USD * (coins * unit * exrate) * ddays
 
-try:
-    os.mkdir("img" + TODAY)
-except:
-    print("Could not create %s" % ("img" + TODAY))
+if CFG["Figures"]:
+    try:
+        os.mkdir("img" + TODAY)
+    except:
+        print("Could not create %s" % ("img" + TODAY))
 
 num = 0
 DAYS = 365 * 1
@@ -132,15 +133,16 @@ for cur in CURRENCY:
                 table.loc[num]["profit"] = profit[day]
                 table.loc[num]["percent"] = profit[day] / investing * 100
 
-        py.figure(num)
-        py.title("%s (%s) -> %s%% (%s)"  %  (cur, mine, pro, TD))
-        py.xlabel("days")
-        py.plot(out, label="outcome")
-        py.plot(inc, label="income")
-        py.plot(profit, label="profit")
-        py.legend(loc="best")
-        #py.show()
-        py.savefig("./img" + TODAY +"/" + cur + "_" + mine + ".png")
+        if CFG["Figures"]:
+            py.figure(num)
+            py.title("%s (%s) -> %s%% (%s)"  %  (cur, mine, pro, TD))
+            py.xlabel("days")
+            py.plot(out, label="outcome")
+            py.plot(inc, label="income")
+            py.plot(profit, label="profit")
+            py.legend(loc="best")
+            py.show()
+            py.savefig("./img" + TODAY +"/" + cur + "_" + mine + ".png")
         num += 1
 
 table.sort_values(by="percent", inplace=True)

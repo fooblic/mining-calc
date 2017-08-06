@@ -52,3 +52,5 @@ Mining:
         ZEC:
             mine: 0.739    # USD per 0.1 H/s
             maint: 0       # out of stock 1 year contract
+
+Figures: False
