@@ -43,9 +43,11 @@ for cur in CURRENCY:
     if rep.status_code == 200:
         records[cur]["price"] = float(rep.json()[0]["price_btc"])
 
+INDX = []  # index for pandas df
 # Get mining data from config
 for cur in CURRENCY:
     for mine in MINING:
+        INDX.append("%s-%s" % (cur, mine))
         records[cur].update(mine={})
         miner = {
             "MINE": CFG["Mining"][mine][cur]["mine"],
@@ -53,19 +55,20 @@ for cur in CURRENCY:
         }
         records[cur][mine] = miner
 
-reporting = "BTC_USD: %s USD\n" % BTC_USD
+reporting = "---\nBTC_USD: %s\n" % BTC_USD
 for cur in CURRENCY:
-    reporting += "%s: %s BTC\t(%s coins per day)\n" % (cur,
-                                                       records[cur]["price"],
-                                                       CFG["Coins"][cur])
+    reporting += '''%s:
+  BTC: %s  # price
+  Coins: %s  # coins per day
+''' % (cur, records[cur]["price"], CFG["Coins"][cur])
 
 print(reporting)
 
 TEMPL = '''
-investing: %s USD for %s days
-income:   %.1f USD
-maintenance: %.1f USD
-profit:    %.1f USD (%.1f %%)
+  investing: %s  # USD for %s days
+  income:   %.1f  # USD
+  maintenance: %.1f  # USD
+  profit:    %.1f  # USD (%.1f %%)
 '''
 
 def outcome(ddays, ffee, invest):
@@ -82,20 +85,18 @@ if CFG["Figures"]:
     except:
         print("Could not create %s" % ("img" + TODAY))
 
-num = 0
 DAYS = 365 * 1
-COL = ["currency", "mining", "invest", "fee", "earn", "ratio",
+COL = ["invest", "fee", "earn", "ratio",
            "revenue", "maintenance", "profit", "return", "percent"]
 
-table = pd.DataFrame([], columns=COL, index=range(qty))
+table = pd.DataFrame([], columns=COL, index=INDX)
 
 print('''| Currency | Mine | Units | Fee, $ | USD per Day | Percent |
 |----------+------+-------+--------+-------------+---------|''')
 for cur in CURRENCY:
     for mine in MINING:
 
-        table.loc[num]["currency"] = cur
-        table.loc[num]["mining"] = mine
+        num = cur + "-" + mine
 
         data = records[cur][mine]
         investing = CFG["Investing"][cur]
@@ -116,7 +117,7 @@ for cur in CURRENCY:
         inc = []
         profit = []
 
-        reporting += "\n %s %s" % (cur, mine)
+        reporting += "\n%s:" % num
         for day in range(DAYS):
             out.append(outcome(day, fee, investing))
             inc.append(income(day, CFG["Coins"][cur], records[cur]["price"], units))
@@ -124,7 +125,7 @@ for cur in CURRENCY:
 
             if (profit[day-1] < 0) and (profit[day] >= 0):  # point of investment return
                 roi = day/30
-                reporting += " return in %.1f monthes" % roi
+                reporting += "  # return in %.1f monthes" % roi
                 table.loc[num]["return"] = roi
 
             if day == (DAYS - 1):  # end of the days
@@ -148,14 +149,13 @@ for cur in CURRENCY:
             py.legend(loc="best")
             #py.show()
             py.savefig("./img" + TODAY +"/" + cur + "_" + mine + ".png")
-        num += 1
 
 table["revenue"] = table["earn"] * DAYS
 table["maintenance"] = table["fee"] * DAYS
 table["profit"] = table["revenue"] - table["maintenance"] - table["invest"]
 table["percent"] = table["profit"] / table["invest"] * 100
 
-table.sort_values(by="percent", inplace=True)
+table.sort_values(by="percent", inplace=True, ascending=False)
 table.to_csv("report %s.csv" % TODAY, sep="\t", index=False)
 
 with open("report" + TODAY + ".log", "w") as FILE:
