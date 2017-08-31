@@ -16,10 +16,10 @@ import pandas as pd
 TODAY = time.strftime("%y%m%d")
 TD = time.strftime("%b %d, %Y")
 
-CFG = yaml.load(open("investing.yml"))
+CFG = yaml.load(open("test2.yml"))
 
-CURRENCY = CFG["Coins"].keys()  #["BTC", "LTC", "ETH", "DASH", "ZEC"]
-MINING = CFG["Mining"].keys()  #["HF", "GM"]
+CURRENCY = CFG["Coins"].keys()
+MINING = CFG["Mining"].keys()
 qty = len(CURRENCY) * len(MINING)
 
 URL_BASE = "https://api.coinmarketcap.com/v1/ticker/"
@@ -156,9 +156,9 @@ table["profit"] = table["revenue"] - table["maintenance"] - table["invest"]
 table["percent"] = table["profit"] / table["invest"] * 100
 
 table.sort_values(by="percent", inplace=True, ascending=False)
-table.to_csv("report %s.csv" % TODAY, sep="\t", index=False)
+table.to_csv("./report/report %s.csv" % TODAY, sep="\t", index=False)
 
-with open("report" + TODAY + ".log", "w") as FILE:
+with open("./report/report" + TODAY + ".log", "w") as FILE:
     FILE.write(reporting)
 
 #print(reporting)
