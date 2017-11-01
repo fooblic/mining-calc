@@ -5,6 +5,9 @@ Investing:  # USD
     ETH: 100
     DASH: 100
     ZEC: 100
+    XMR: 100
+
+Figures: False
 
 # https://alloscomp.com/bitcoin/calculator
 # http://www.coinwarz.com/calculators/litecoin-mining-calculator/
@@ -12,45 +15,41 @@ Investing:  # USD
 # http://www.coinwarz.com/calculators/dash-mining-calculator/
 # https://www.coinwarz.com/calculators/zcash-mining-calculator/
 
-Coins:  # 2017-07-16
-    BTC: 0.00000313   # coins per day for 10GH/s
-    LTC: 0.00180030   # per 1 MH/s
-    ETH: 0.000034775  # per 100 KH/s
-    DASH: 0.00010240  # per 1 MH/s
-    ZEC: 0.00000297   # per 0.1 H/s
+Coins:  # 2017-11-01
+    BTC: 0.00000173   # coins per day for 10GH/s
+    LTC: 0.00046488   # per 1 MH/s
+    ETH: 0.000017555  # per 100 KH/s
+    DASH: 0.00000262  # per 1 MH/s
+    ZEC: 0.00000176   # per 0.1 H/s
+    XMR: 0.00118151   # per 60 H/s
 
 Mining:
     HF:  # https://hashflare.io/#plans
         BTC:
-            mine: 1.2      # USD per 10GH/s
-            maint: 0.0035  # USD fee per 10GH/s per day
+            mine: 1.5      # USD per 10GH/s
+            maint: 0.0035  # USD fee per 10GH/s per day (1 year contract!)
         LTC:
-            mine: 13.5     # USD per 1 MH/s
-            maint: 0.01    # USD fee per 1 MH/s per day
+            mine: 7.5      # USD per 1 MH/s
+            maint: 0.005   # 1 year contract
         ETH:
             mine: 2.2      # USD per 100 KH/s
             maint: 0       # 1 year contract
         DASH:
-            mine: 5.8      # USD per 1 MH/s
+            mine: 3.2      # USD per 1 MH/s
             maint: 0       # 1 year contract
         ZEC:
             mine: 2.0      # USD per 0.1 H/s
-            maint: 0       # unavailable
+            maint: 0       # 1 year contract
     GM:  # https://www.genesis-mining.com/pricing
-        BTC:
-            mine: 1.5       # USD per 10GH/s
-            maint: 0.0028   # USD fee per 10GH/s per day
-        LTC:
-            mine: 14        # USD per 1 MH/s
-            maint: 0        # out of stock
         ETH:
             mine: 2.99      # USD per 100 KH/s
             maint: 0        # 2 years contract
-        DASH:
-            mine: 6         # USD per 1 MH/s
-            maint: 0        # 2 years contract
         ZEC:
-            mine: 0.739    # USD per 0.1 H/s
-            maint: 0       # out of stock 1 year contract
+            mine: 0.192    # USD per 0.1 H/s
+            maint: 0       # 2 years contract
+        XMR:
+            mine: 49.99    # USD per 60 H/s
+            maint: 0       # 2 years contract
+    #H24:  # https://hashing24.com/tariffs
 
-Figures: False
+

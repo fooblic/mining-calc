@@ -16,7 +16,7 @@ import pandas as pd
 TODAY = time.strftime("%y%m%d")
 TD = time.strftime("%b %d, %Y")
 
-CFG = yaml.load(open("test2.yml"))
+CFG = yaml.load(open("test3.yml"))
 
 CURRENCY = CFG["Coins"].keys()
 MINING = CFG["Mining"].keys()
@@ -27,7 +27,8 @@ records = {"BTC": {"API": URL_BASE + "bitcoin"},
            "LTC": {"API": URL_BASE + "litecoin"},
            "ETH": {"API": URL_BASE + "ethereum"},
            "DASH":{"API": URL_BASE + "dash"},
-           "ZEC": {"API": URL_BASE + "zcash"}
+           "ZEC": {"API": URL_BASE + "zcash"},
+           "XMR": {"API": URL_BASE + "monero"}
           }
 
 print("Getting ex-rates...\n")
@@ -47,12 +48,15 @@ INDX = []  # index for pandas df
 # Get mining data from config
 for cur in CURRENCY:
     for mine in MINING:
-        INDX.append("%s-%s" % (cur, mine))
         records[cur].update(mine={})
-        miner = {
-            "MINE": CFG["Mining"][mine][cur]["mine"],
-            "MAINT": CFG["Mining"][mine][cur]["maint"]
-        }
+        try:
+            miner = {
+                "MINE": CFG["Mining"][mine][cur]["mine"],
+                "MAINT": CFG["Mining"][mine][cur]["maint"]
+            }
+            INDX.append("%s-%s" % (cur, mine))
+        except KeyError:
+            print("error: ", cur, mine)
         records[cur][mine] = miner
 
 reporting = "---\nBTC_USD: %s\n" % BTC_USD
@@ -93,62 +97,67 @@ table = pd.DataFrame([], columns=COL, index=INDX)
 
 print('''| Currency | Mine | Units | Fee, $ | USD per Day | Percent |
 |----------+------+-------+--------+-------------+---------|''')
+
+
+
+
 for cur in CURRENCY:
     for mine in MINING:
 
         num = cur + "-" + mine
+        if num in INDX:
 
-        data = records[cur][mine]
-        investing = CFG["Investing"][cur]
-        table.loc[num]["invest"] = investing
-        units = investing / data["MINE"]
-        fee = data["MAINT"] * units  # per day
-        earn = CFG["Coins"][cur] * units * records[cur]["price"] * BTC_USD
-        ratio = (earn - fee) / CFG["Investing"][cur] * 100  # profit per day per investment %
+            data = records[cur][mine]
+            investing = CFG["Investing"][cur]
+            table.loc[num]["invest"] = investing
+            units = investing / data["MINE"]
+            fee = data["MAINT"] * units  # per day
+            earn = CFG["Coins"][cur] * units * records[cur]["price"] * BTC_USD
+            ratio = (earn - fee) / CFG["Investing"][cur] * 100  # profit per day per investment %
 
-        table.loc[num]["fee"] = fee
-        table.loc[num]["earn"] = earn
-        table.loc[num]["ratio"] = ratio
+            table.loc[num]["fee"] = fee
+            table.loc[num]["earn"] = earn
+            table.loc[num]["ratio"] = ratio
 
-        print("| %s      | %s   | %.1f  | %.2f   | %.2f       | %.2f |" %
-              (cur, mine, units, fee, earn, ratio))
+            print("| %s      | %s   | %.1f  | %.2f   | %.2f       | %.2f |" %
+                  (cur, mine, units, fee, earn, ratio))
 
-        out = []
-        inc = []
-        profit = []
+            out = []
+            inc = []
+            profit = []
 
-        reporting += "\n%s:" % num
-        for day in range(DAYS):
-            out.append(outcome(day, fee, investing))
-            inc.append(income(day, CFG["Coins"][cur], records[cur]["price"], units))
-            profit.append(inc[day] - out[day])
+            reporting += "\n%s:" % num
+            for day in range(DAYS):
+                out.append(outcome(day, fee, investing))
+                inc.append(income(day, CFG["Coins"][cur], records[cur]["price"], units))
+                profit.append(inc[day] - out[day])
 
-            if (profit[day-1] < 0) and (profit[day] >= 0):  # point of investment return
-                roi = day/30
-                reporting += "  # return in %.1f monthes" % roi
-                table.loc[num]["return"] = roi
+                if (profit[day-1] < 0) and (profit[day] >= 0):  # point of investment return
+                    roi = day/30
+                    reporting += "  # return in %.1f monthes" % roi
+                    table.loc[num]["return"] = roi
 
-            if day == (DAYS - 1):  # end of the days
-                calc = ""
-                pro = "%.1f" % (profit[day] / investing  * 100)
-                calc = TEMPL % (investing, day,
-                                inc[day],
-                                out[day] - investing,
-                                profit[day], profit[day] / investing * 100
-                               )
-                #print(calc)
-                reporting += calc
+                if day == (DAYS - 1):  # end of the days
+                    calc = ""
+                    pro = "%.1f" % (profit[day] / investing  * 100)
+                    calc = TEMPL % (investing, day,
+                                    inc[day],
+                                    out[day] - investing,
+                                    profit[day], profit[day] / investing * 100
+                                   )
+                    #print(calc)
+                    reporting += calc
 
-        if CFG["Figures"]:
-            py.figure(num)
-            py.title("%s (%s) -> %s%% (%s)"  %  (cur, mine, pro, TD))
-            py.xlabel("days")
-            py.plot(out, label="outcome")
-            py.plot(inc, label="income")
-            py.plot(profit, label="profit")
-            py.legend(loc="best")
-            #py.show()
-            py.savefig("./img" + TODAY +"/" + cur + "_" + mine + ".png")
+            if CFG["Figures"]:
+                py.figure(num)
+                py.title("%s (%s) -> %s%% (%s)"  %  (cur, mine, pro, TD))
+                py.xlabel("days")
+                py.plot(out, label="outcome")
+                py.plot(inc, label="income")
+                py.plot(profit, label="profit")
+                py.legend(loc="best")
+                #py.show()
+                py.savefig("./img" + TODAY +"/" + cur + "_" + mine + ".png")
 
 table["revenue"] = table["earn"] * DAYS
 table["maintenance"] = table["fee"] * DAYS
@@ -156,9 +165,9 @@ table["profit"] = table["revenue"] - table["maintenance"] - table["invest"]
 table["percent"] = table["profit"] / table["invest"] * 100
 
 table.sort_values(by="percent", inplace=True, ascending=False)
-table.to_csv("./report/report %s.csv" % TODAY, sep="\t", index=False)
+table.to_csv("./report~/report %s.csv" % TODAY, sep="\t", index=True)
 
-with open("./report/report" + TODAY + ".log", "w") as FILE:
+with open("./report~/report" + TODAY + ".log", "w") as FILE:
     FILE.write(reporting)
 
 #print(reporting)
