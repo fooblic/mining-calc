@@ -22,6 +22,10 @@ CURRENCY = CFG["Coins"].keys()
 MINING = CFG["Mining"].keys()
 qty = len(CURRENCY) * len(MINING)
 
+reporting = TD
+for mine in MINING:
+    reporting += "\n%s\n %s" % (mine, CFG["Mining"][mine])
+
 URL_BASE = "https://api.coinmarketcap.com/v1/ticker/"
 records = {"BTC": {"API": URL_BASE + "bitcoin"},
            "LTC": {"API": URL_BASE + "litecoin"},
@@ -55,11 +59,11 @@ for cur in CURRENCY:
                 "MAINT": CFG["Mining"][mine][cur]["maint"]
             }
             INDX.append("%s-%s" % (cur, mine))
+            records[cur][mine] = miner
         except KeyError:
             print("error: ", cur, mine)
-        records[cur][mine] = miner
 
-reporting = "---\nBTC_USD: %s\n" % BTC_USD
+reporting += "\n---\nBTC_USD: %s\n" % BTC_USD
 for cur in CURRENCY:
     reporting += '''%s:
   BTC: %s  # price
@@ -75,10 +79,12 @@ TEMPL = '''
   profit:    %.1f  # USD (%.1f %%)
 '''
 
+
 def outcome(ddays, ffee, invest):
     ''' Expences '''
     return invest + ffee * ddays
 
+    
 def income(ddays, coins, exrate, unit):
     ''' Revenue '''
     return BTC_USD * (coins * unit * exrate) * ddays
@@ -97,9 +103,6 @@ table = pd.DataFrame([], columns=COL, index=INDX)
 
 print('''| Currency | Mine | Units | Fee, $ | USD per Day | Percent |
 |----------+------+-------+--------+-------------+---------|''')
-
-
-
 
 for cur in CURRENCY:
     for mine in MINING:
