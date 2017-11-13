@@ -12,19 +12,27 @@ import requests
 import yaml
 
 import pandas as pd
+#from tabulate import tabulate
+import pprint
 
+pp = pprint.PrettyPrinter(indent=4)
 TODAY = time.strftime("%y%m%d")
 TD = time.strftime("%b %d, %Y")
 
 CFG = yaml.load(open("test3.yml"))
+#headers = ["Currency", "Coins"]
+#print(tabulate([[c,v] for c,v in CFG["Coins"].items()], headers=headers))
+pp.pprint(CFG["Coins"])
 
 CURRENCY = CFG["Coins"].keys()
 MINING = CFG["Mining"].keys()
 qty = len(CURRENCY) * len(MINING)
 
-reporting = TD
+reporting = TD + "\n"
 for mine in MINING:
-    reporting += "\n%s\n %s" % (mine, CFG["Mining"][mine])
+    #reporting += "\n%s\n %s" % (mine, CFG["Mining"][mine])
+    reporting += "\n%s\n" % mine
+    reporting += pprint.pformat(CFG["Mining"][mine], indent=4)
 
 URL_BASE = "https://api.coinmarketcap.com/v1/ticker/"
 records = {"BTC": {"API": URL_BASE + "bitcoin"},
@@ -68,7 +76,11 @@ for cur in CURRENCY:
     reporting += '''%s:
   BTC: %s  # price
   Coins: %s  # coins per day
-''' % (cur, records[cur]["price"], CFG["Coins"][cur])
+  Units: %s  # mining hashrate
+''' % (cur,
+    records[cur]["price"],
+    CFG["Coins"][cur],
+    CFG["Units"][cur])
 
 print(reporting)
 
@@ -114,8 +126,8 @@ for cur in CURRENCY:
             investing = CFG["Investing"][cur]
             table.loc[num]["invest"] = investing
             units = investing / data["MINE"]
-            fee = data["MAINT"] * units  # per day
-            earn = CFG["Coins"][cur] * units * records[cur]["price"] * BTC_USD
+            fee = data["MAINT"] * units  # per day USD
+            earn = CFG["Coins"][cur] * units * records[cur]["price"] * BTC_USD  # USD
             ratio = (earn - fee) / CFG["Investing"][cur] * 100  # profit per day per investment %
 
             table.loc[num]["fee"] = fee
