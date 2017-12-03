@@ -1,7 +1,7 @@
 #! /usr/bin/python3
 # -*- coding: utf-8 -*-
 '''
-Cloud mining profit calc
+Cloud vs CPE mining profit calc
 by @fooblic
 '''
 import os
@@ -12,8 +12,12 @@ import requests
 import yaml
 
 import pandas as pd
-#from tabulate import tabulate
+from tabulate import tabulate
 import pprint
+
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+from numpy import arange
 
 pp = pprint.PrettyPrinter(indent=4)
 TODAY = time.strftime("%y%m%d")
@@ -71,19 +75,28 @@ for cur in CURRENCY:
         except KeyError:
             print("error: ", cur, mine)
 
-reporting += "\n---\nBTC_USD: %s\n" % BTC_USD
+# Get mining dataframe from config
+mining = pd.DataFrame([],
+                      columns=["rate", "coins", "price", "mine", "maint"],
+                      index=INDX)
+
 for cur in CURRENCY:
-    reporting += '''%s:
-  BTC: %s  # price
-  Coins: %s  # coins per day
-  Units: %s  # mining hashrate
-''' % (cur,
-    records[cur]["price"],
-    CFG["Coins"][cur],
-    CFG["Units"][cur])
+    for mine in MINING:
+        try:
+            mining.loc["%s-%s" % (cur, mine)]["rate"] = CFG["Units"][cur]
+            mining.loc["%s-%s" % (cur, mine)]["coins"] = CFG["Coins"][cur]
+            mining.loc["%s-%s" % (cur, mine)]["price"] = records[cur]["price"]
+            mining.loc["%s-%s" % (cur, mine)]["mine"] = CFG["Mining"][mine][cur]["mine"]
+            mining.loc["%s-%s" % (cur, mine)]["maint"] = CFG["Mining"][mine][cur]["maint"]
+        except KeyError:
+            print("error: ", cur, mine)
 
-print(reporting)
+mine_report = tabulate(mining, headers="keys", tablefmt="orgtbl", showindex=True)
+reporting += "\n" + mine_report + "\n"
+print(mine_report)
 
+# Logging
+reporting += "\n---\nBTC_USD: %s\n" % BTC_USD
 TEMPL = '''
   investing: %s  # USD for %s days
   income:   %.1f  # USD
@@ -96,7 +109,7 @@ def outcome(ddays, ffee, invest):
     ''' Expences '''
     return invest + ffee * ddays
 
-    
+
 def income(ddays, coins, exrate, unit):
     ''' Revenue '''
     return BTC_USD * (coins * unit * exrate) * ddays
@@ -109,12 +122,9 @@ if CFG["Figures"]:
 
 DAYS = 365 * 1
 COL = ["invest", "fee", "earn", "ratio",
-           "revenue", "maintenance", "profit", "return", "percent"]
+   "revenue", "maintenance", "profit", "return", "percent"]
 
 table = pd.DataFrame([], columns=COL, index=INDX)
-
-print('''| Currency | Mine | Units | Fee, $ | USD per Day | Percent |
-|----------+------+-------+--------+-------------+---------|''')
 
 for cur in CURRENCY:
     for mine in MINING:
@@ -133,9 +143,6 @@ for cur in CURRENCY:
             table.loc[num]["fee"] = fee
             table.loc[num]["earn"] = earn
             table.loc[num]["ratio"] = ratio
-
-            print("| %s      | %s   | %.1f  | %.2f   | %.2f       | %.2f |" %
-                  (cur, mine, units, fee, earn, ratio))
 
             out = []
             inc = []
@@ -187,3 +194,20 @@ with open("./report~/report" + TODAY + ".log", "w") as FILE:
 
 #print(reporting)
 print(table)
+
+# Graph
+plt.rcdefaults()
+mpl.rcParams["font.family"] = "serif"
+mpl.rcParams["font.size"] = 14
+fig, ax = plt.subplots()
+y_pos = arange(len(table.index))
+ax.barh(y_pos - 0.5, table["percent"])
+ax.set_yticks(y_pos)
+ax.set_yticklabels(table.index.values)
+ax.set_xlabel('Percents per year, %')
+ax.invert_yaxis()
+plt.grid()
+#plt.autoscale(tight=True)
+plt.subplots_adjust(left=0.22)
+plt.savefig("./report~/percent-%s.png" % TODAY)
+#plt.show()
