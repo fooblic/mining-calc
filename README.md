@@ -2,7 +2,7 @@
 
 ## Cloud mining profitability vs CPE mining (2017-12-10)
 
-![profit](./img/percent_171210.png)
+![profit](./img/percent-171210.png)
 
 ## Profit estimation
 
