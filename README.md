@@ -1,6 +1,10 @@
 # mining-calc
 
-## Profit estimation for cloud mining
+## Cloud mining profitability vs CPE mining (2017-12-10)
+
+![profit](./img/percent_171210.png)
+
+## Profit estimation
 
 Is it cloud mining profitable? Let's investigate what services are proposed now.
 
@@ -103,43 +107,6 @@ maintance: 106.2 USD
 profit:    64.2 USD (64.2 %)
 ```
 
-![LTC](./img170630/LTC.png)
-
-```
-LTC return in 178 days
-investing: 100 USD for 364 days
-revenue:   231.7 USD
-maintance: 27.0 USD
-profit:    104.8 USD (104.8 %)
-```
-
-![ETH](./img170630/ETH.png)
-
-```
-ETH return in 164 days
-investing: 100 USD for 364 days
-revenue:   222.7 USD
-maintance: 0.0 USD
-profit:    122.7 USD (122.7 %)
-```
-
-![DASH](./img170630/DASH.png)
-```
-DASH return in 242 days
-investing: 100 USD for 364 days
-revenue:   150.8 USD
-maintance: 0.0 USD
-profit:    50.8 USD (50.8 %)
-```
-
-![ZEC](./img170630/ZEC.png)
-```
-ZEC
-investing: 100 USD for 364 days
-revenue:   14.8 USD
-maintance: 0.0 USD
-profit:    -85.2 USD (-85.2 %)
-```
 
 ### Refuse from responsibility:
-Anyway, this is just my small research and not an investing recommendation. Who knows what the price will be in a year?
+Anyway, this is just my small research and not an investing advise.
